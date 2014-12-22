@@ -1,0 +1,17 @@
+import threading
+PORTNO = 10552
+
+class FunctionThread (threading.Thread):
+    """
+    Thread that runs a UDP server.
+    """
+    def __init__(self, threadID, name, handler):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        # Run a UDP server at PORTNO with handler for each received datagram.
+        self.server = SocketServer.UDPServer(('',PORTNO), handler)
+    def run(self):
+        self.server.serve_forever()
+    def shutdown( self ):
+        self.server.shutdown()
