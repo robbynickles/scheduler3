@@ -4,7 +4,7 @@ OFFLINE_MODE = True
 from algorithm.schedule_algorithm import courses
 from algorithm.schedule_algorithm import generate_schedules
 from course_selector.selector import Selector
-from calvis3.calvis.calvis import Calender
+from calvis3.calvis import Calender
 from utility.bulletin1 import Bulletin
 from kivy.uix.scatter import ScatterPlane
 from kivy.base import runTouchApp

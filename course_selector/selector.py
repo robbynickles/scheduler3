@@ -2,13 +2,10 @@ import time, random
 from global_environment import *
 from course_selector import course_selector_layout
 from course_popup1 import popup_window
-from calvis3.calvis.scorer import course_waitlist_score
 
 class Selector( FloatLayout ):
     def create_button( self, dicts, text ):
         sections = filter( lambda d: "{} : {}".format(d['Name'][0],d['Title'][0]) == text, dicts )
-        random.shuffle( sections )
-        sections = sorted( sections, key=course_waitlist_score, reverse=True)
         name = sections[0]['Name'][0]
         row = GridLayout( rows=1 )
         button = Button( text=text, on_press=self.press_button, on_release=self.release_button )

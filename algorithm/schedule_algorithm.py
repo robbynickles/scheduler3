@@ -1,6 +1,5 @@
 from itertools import combinations
 from helpers import * 
-from calvis3.calvis.scorer import course_waitlist_score
 import random
 
 def compatible( sectionA, sectionB ):

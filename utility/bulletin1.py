@@ -1,6 +1,6 @@
 from helpers import *
 from data_objects import Section, Course
-from calvis3.calvis.scorer import course_waitlist_score
+from calvis3.scorer import course_waitlist_score
 
 class Bulletin():
     selected_courses = []
