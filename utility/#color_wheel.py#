@@ -28,9 +28,8 @@ colors = ['indianred4', 'aquamarine2', 'yellow2', 'darkturquoise', 'mediumpurple
 _color_wheel = [ some_colors[ c ] for c in colors ]
 
 def get_color():
-    global _color_wheel
     try:
-        return _color_wheel.pop(0)
+        return color_wheel.pop(0)
     except IndexError:
         _color_wheel = [ some_colors[ c ] for c in colors ]
-        return _color_wheel.pop(0)
+        return get_color()

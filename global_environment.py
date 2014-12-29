@@ -11,6 +11,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 
-from utility.color_wheel import some_colors, color_wheel
+from utility.color_wheel import some_colors, get_color
 from utility.coordinates import XGAP, YGAP, cal_map, inverse_cal_map, label_offset, extract_times
 from utility.util import draw_box, draw_window_frame, draw_border
+

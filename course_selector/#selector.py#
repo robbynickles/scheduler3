@@ -70,7 +70,7 @@ class Selector( FloatLayout ):
                 for child in self.children:
                     child.disabled =  True 
                 button.parent.parent.disabled = False
-                self.parent.apply_transform( self.parent.transform.inverse().translate(0, 0, 0) )
+                self.parent.apply_transform( self.parent.transform.inverse().translate(1.2*w, 0, 0) )
                 popup_window(self, button, button.sections)
             elif self.popped == button: 
                 for child in self.children:

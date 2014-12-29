@@ -21,7 +21,7 @@ class Calender(FloatLayout):
         number_of_courses = len(self.bulletin.selected_courses)
         number_of_schedules = a_function(len(items), number_of_courses) 
         self.pb1 = ProgressBar(max=number_of_schedules)
-        loadscreen = LoadingScreen( self.pb1, len(items), number_of_schedules, pos=(self.x, self.y) )
+        loadscreen = LoadingScreen( self.pb1, len(items), number_of_schedules )
         self.schedule_layer.add_widget( loadscreen )
         self.schedules = self.schedule_generator( items, number_of_courses, self.pb1 )
         loadscreen.clear_widgets()
@@ -45,10 +45,10 @@ class Calender(FloatLayout):
         self.active_button = None #for class-block popups
         self.create_layers()
         self.build_middle_layer()
-        draw_window_frame(self.bottom_layer, (self.x, self.y) )
-        draw_border(self.bottom_layer, (self.x, self.y) )
+        draw_window_frame(self.bottom_layer)
+        draw_border(self.bottom_layer)
 
-        Clock.schedule_interval(self.hold_checker, 1.0 / 120.0)
+        Clock.schedule_interval(self.hold_checker, 1.0 / 60.0)
     
     def create_layers( self ):
         self.top_layer = FloatLayout()
@@ -64,7 +64,7 @@ class Calender(FloatLayout):
     def build_middle_layer(self):
         self.clear_layer(self.middle_layer)
         self.in_exclusion_mode = False
-        bottom_controls = GridLayout(cols=2, pos=(self.x,self.y), size=(w, .15*h) )
+        bottom_controls = GridLayout(cols=2, pos=(0,0), size=(w, .15*h) )
         self.exclude_button = ToggleButton( background_color=some_colors['darkturquoise'], text="Exclude Times", 
                                             on_press=self.exclusion_mode )
         self.exclude_button.layout = None
@@ -85,7 +85,7 @@ class Calender(FloatLayout):
         days = ['M','T','W','Th','F']
         for i in range(len( days )):
             day, x = days[i], i*XGAP
-            button = ToggleButton( pos=(self.x + x, self.y + h-.05*h), size=(XGAP, .05*h), background_color=some_colors['indianred4'],
+            button = ToggleButton( pos=(x, h-.05*h), size=(XGAP, .05*h), background_color=some_colors['indianred4'],
                                    text=day,
                                    on_press=lambda button : self.exclude_day(button))
             button.my_name = day
@@ -101,7 +101,7 @@ class Calender(FloatLayout):
                 button.layout = FloatLayout()
                 with button.layout.canvas:
                     Color(1,1,1,.3)
-                    Rectangle(pos=(self.x + XGAP*days.index( button.my_name ),self.y + .15*h), 
+                    Rectangle(pos=(XGAP*days.index( button.my_name ),.15*h), 
                               size=(XGAP, .85*h))
                 self.top_layer.add_widget(button.layout)
             else:

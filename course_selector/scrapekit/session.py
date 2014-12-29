@@ -71,7 +71,7 @@ def submit_HTMLform():
         soup = BS(response.read())
         raw_classes = soup.find_all('tr')
     except mechanize.HTTPError, response2:
-        pass
+        return []
     
     if len(raw_classes) >= 6:
         key = [ str(item) for item in raw_classes[5].strings ][1:-1]

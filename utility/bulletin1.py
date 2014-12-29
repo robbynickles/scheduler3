@@ -3,6 +3,11 @@ from data_objects import Section, Course
 from calvis3.scorer import course_waitlist_score
 
 class Bulletin():
+    """A Bulletin object is used to  store and manipulate course information.
+    Different parts of the GUI are connected here. When a user makes course inclusions or exclusions,
+    the GUI communicates the changes to here. Then, when schedules are generated, the list of courses
+    plus any user inclusions/exclusions comes from here.
+    """
     selected_courses = []
     user_events = []
     excluded_days = dict( zip( ['M','T','W','Th','F'], [False] * 5 ) )
@@ -39,7 +44,14 @@ class Bulletin():
     def get_user_events( self ):
         return self.user_events
     def get_included_sections( self ):
-        return map( lambda c: filter( lambda s: s.event_dict['included_in_search'], c ),
+        """ ---> ( A, B ) == ( (a1,a2), (b1,b2) )  
+        where A and B are lists of sections for the same course included in the search.
+        """
+        exclusion_filter = lambda section: \
+                           self.compatible_with_excluded_days(section) and \
+                           self.compatible_with_user_events(section) and \
+                           section.event_dict['included_in_search']
+        return map( lambda section_list: filter( exclusion_filter, section_list ),
                     map( lambda c: c.sections, self.selected_courses ) )
     def get_excluded_sections( self ):
         return filter( lambda s: not s.event_dict['included_in_search'],
@@ -56,18 +68,20 @@ class Bulletin():
                 return False
         return True
 
-    def by_group( self, section ):
-        return section.event_dict['row_group']
+    def by_group( self, section ): return section.event_dict['row_group']
 
     def get_sections_selected( self ):
-        def exclusion_filter(section):
-            return \
-                self.compatible_with_excluded_days(section) and \
-                self.compatible_with_user_events(section)
-        ret = map( lambda c: filter(exclusion_filter, c), self.get_included_sections() )
+        """The main access point to selected courses. This is called to supply the list
+        of sections to the schedule generation function.
+        """
+        ret = self.get_included_sections() 
+        CAP = 10
         for i in range(len(ret)):
-            if len(ret[i]) >= 10:#If over 10 sections in a course, only give the top-10 waitlists.
-                ret[i] = sorted(ret[i], key=course_waitlist_score, reverse=True)[:10]
-        return sorted( reduce( lambda x,y: x+y, ret ), key=self.by_group )
+            if len(ret[i]) >= CAP:#If over CAP sections in a course, only give the top-CAP waitlists.
+                ret[i] = sorted(ret[i], key=course_waitlist_score, reverse=True)[:CAP]
+        try:
+            return sorted( reduce( lambda x,y: x+y, ret ), key=self.by_group )
+        except TypeError: # ret is empty
+            return []
         
 

@@ -1,23 +1,6 @@
 from global_environment import *
 from sectiondetail import SectionDetail
 
-def draw_box(widg, pos, size, color, alpha=.3, width=1):
-    (x,y), (xdim, ydim), (r,g,b,a) = pos, size, color#some_colors['aquamarine2']
-    with widg.canvas:
-        Color(r, g, b, alpha)
-        Line( points=(x, y, x, y+ydim, x+xdim, y+ydim, x+xdim, y, x, y), width=width )
-
-def take_over( widg, button, e ):
-    # Transform_point returns points in the same coordinate space as events.
-    s = widg.parent.scale
-    x, y = widg.w * e.sx, widg.h * e.sy
-    left, bottom, z = widg.parent.transform.transform_point( button.x, button.y, 0 )
-    xdim, ydim = button.size
-    if left <= x <= left + s*xdim and bottom <= y <= bottom + s*ydim:
-        widg.press_button( button )
-    if widg.accordion:
-        widg.accordion.on_touch_down( e )
-
 def popup_window(self, button, sections):
     button.switch_state = not button.switch_state
     if button.switch_state:
@@ -38,7 +21,6 @@ def popup_window(self, button, sections):
         class_closeup( self, button, pos, size, sections )
         self.add_widget( layout )
     else:
-
         anim = Animation( x=button.oldx, y=button.oldy, duration=.1 )
         anim.start(button)
         self.popped = None

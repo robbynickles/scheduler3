@@ -1,0 +1,4 @@
+def disable_widget_tree( root, DISABLE ):
+    root.disable = DISABLE
+    for child in root.childre:
+        disable_widget_tree( child, DISABLE )

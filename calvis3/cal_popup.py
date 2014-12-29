@@ -1,10 +1,14 @@
 from global_environment import *
 from utility.helpers import *
+from sectiondetail import SectionDetail
+
 def add_block(self, block, layer ):
     day, start, end, ty, location, course_dict = block
     p1, p2 = cal_map(day, start), cal_map(day, end)
     if ty not in ['LEC', 'LAB', 'PERS']:
         p1, p2 = cal_map(day, '4 00 AM'), cal_map(day, '5 00 AM')
+    p1 = self.x + p1[0], self.y + p1[1]
+    p2 = self.x + p2[0], self.y + p2[1]
     size = XGAP,p2[1]-p1[1]
     button = Button( pos=p1, size=size, background_color=course_dict['my_color'], 
                      on_press=lambda button : popup_window(self, button, block) )
@@ -13,13 +17,14 @@ def add_block(self, block, layer ):
     text = "{} [color={}]{}[/color]  [b]{}[/b]".format(course_dict['Name'][0][1:], type_color, ty, getsection(course_dict))
     if ty == 'PERS':
         text = "Custom"
-    button.add_widget(Label(text=text, font_size=13, markup=True, pos=label_offset((p1[0]+XGAP*.3,p1[1]+10))))
+    button.add_widget(Label(text=text, font_size=13, markup=True, pos=label_offset((p1[0]+XGAP*.3,p1[1]+3))))
     button.switch_state=False 
     button.my_popup = None
     layer.add_widget(button)
 
 def popup_window(self, button, block):
     if self.active_button == None or self.active_button == button:
+        self.parent.apply_transform( self.parent.transform.inverse().translate(-1.2*w, 0, 0) )
         (x,y), (xdim,ydim) = button.pos, button.size
         button.switch_state = not button.switch_state
         if button.switch_state:
@@ -28,23 +33,28 @@ def popup_window(self, button, block):
             border_color = some_colors['lavenderblush4']
             width = 3
             with layout.canvas:
-                pos, size = (0,0), (0,0)
                 if y < h/2.0:
-                    pos, size = (0, y+ydim), (w, .95*h-(y+ydim))
+                    pos, size = (self.x, self.y + y+ydim), (w, .95*h-(y+ydim))
                     Color(r,g,b,.8)
                     Rectangle( pos=pos, size=size )
                     draw_box(layout, pos, size, border_color, alpha=1, width=width)
                 else:
-                    pos, size = (0,.1*h), (w,y-.1*h)
+                    pos, size = (self.x,self.y + .1*h), (w,y-.1*h)
                     Color(r,g,b,.8)
                     Rectangle( pos=pos, size=size )
                     draw_box(layout, pos, size, border_color, alpha=1, width=width)
             button.my_popup = layout
-            class_closeup( self, button.my_popup, pos, size, block )
+
+            detail = SectionDetail( block, pos, size )
+            layout.detail = detail
+            layout.add_widget( detail )
+
+            #class_closeup( self, button.my_popup, pos, size, block )
             self.active_button = button
             self.top_layer.add_widget( layout )
             button.background_normal = button.background_down
         else:
+            button.my_popup.remove_widget( button.my_popup.detail )
             self.active_button = None
             button.background_normal = 'atlas://data/images/defaulttheme/button'
             self.top_layer.remove_widget(button.my_popup)
@@ -115,7 +125,8 @@ def class_closeup( self, renderer, pos, size, block ):
         remove_user_event_button = ToggleButton(text='Remove', pos=(ox+.1*w, oy+ydim*.1), size=(.8*xdim, .1*ydim), 
                                                 group='cal_popup1', on_press=remove_user_event)
         remove_user_event_button.user_event = course_dict
-        renderer.add_widget( remove_user_event_button )
+        #renderer.add_widget( remove_user_event_button )
     else:
-        renderer.add_widget(keep)
-        renderer.add_widget(remove)
+        pass
+        #renderer.add_widget(keep)
+        #renderer.add_widget(remove)

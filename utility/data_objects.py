@@ -29,6 +29,7 @@ class Course():
         for s in sections:
             s['row_group'] = row_group
             self.sections += [Section( s )]
+
     def find_section( self, section_number ):
         for s in self.sections:
             if getsection(s.event_dict) == section_number:
@@ -53,7 +54,3 @@ class Course():
     def exclude_section( self, section_number ):
         self.find_section( section_number ).event_dict['included_in_search'] = False
 
-    def get_max_sections(self):
-        ret = filter( lambda s: s.event_dict['included_in_search'], self.sections )
-        if ret >= 10:
-            return ret[:10]

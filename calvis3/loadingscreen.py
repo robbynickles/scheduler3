@@ -1,6 +1,7 @@
 from global_environment import *
 
 def human( n ):
+    # 1000000 ---> 1,000,000
     nstring = str(n)
     comma = []
     for i in range(len(nstring)):
@@ -13,11 +14,11 @@ class LoadingScreen( FloatLayout ):
         super(type(self), self).__init__(*args, **kwargs)
         with self.canvas:
             Color(0,0,0,.7)
-            Rectangle( pos=(0,0), size=(w,h) )
-        progressbar.center = w/2,h/2
+            Rectangle( pos=(self.x,self.y), size=(w,h) )
+        progressbar.center = self.x + w/2, self.y + h/2
         self.add_widget( progressbar )
         text = "Validating {} schedule{} from {} section{}...".format( human(Nschedules),
                                                                        's' if Nschedules > 1 else '',
                                                                        human(Nsections),
                                                                        's' if Nsections > 1 else '')
-        self.add_widget( Label( center=(w/2,h/2 + 30), text=text ) )
+        self.add_widget( Label( center=(self.x+ w/2,self.y + h/2 + 30), text=text ) )
