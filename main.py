@@ -15,11 +15,11 @@ bulletin = Bulletin()
 selector = Selector( bulletin=bulletin, size=(w, h), pos=(0, 0), 
                      offline_mode=OFFLINE_MODE, courses=courses if OFFLINE_MODE else [])
 calender = Calender( bulletin=bulletin, schedule_generator=generate_schedules, pos=( 1.2*w, 0) )
-map_page =  MapPage( calender=calender, size=(w, h), pos=( 2*1.2*w, 0) )
+map_page = MapPage(  calender=calender, size=(w, h), pos=( 2*1.2*w, 0) )
 
 pages = selector, calender, map_page
 root = SwipePlane()
 for page in pages:
-    swipe_page = root.add_page( page )
+    root.add_page( page )
 
 runTouchApp( root )

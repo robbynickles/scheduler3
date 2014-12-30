@@ -19,9 +19,12 @@ some_colors = {
 'darkseagreen1': (193, 255, 193, 255)
 }
 
+
+
+opacity = lambda (r,g,b,a): (r, g, b, 1.0 * a)
 percent = lambda x: x/255.0
 for key, value in some_colors.items():
-    some_colors[key] = map(percent, value)
+    some_colors[key] = map(percent, opacity(value))
 
 colors = ['indianred4', 'aquamarine2', 'yellow2', 'darkturquoise', 'mediumpurple3', 'springgreen3', 'peachpuff3',
           'darkseagreen1', 'orchid4', 'orangered1' ]

@@ -11,7 +11,7 @@ def add_block(self, block, layer ):
     p2 = self.x + p2[0], self.y + p2[1]
     size = XGAP,p2[1]-p1[1]
     button = Button( pos=p1, size=size, background_color=course_dict['my_color'], 
-                     on_press=lambda button : popup_window(self, button, block) )
+                     on_release=lambda button : popup_window(self, button, block) )
     draw_box(button, p1, size, (1, .5, 0, 1))
     type_color = "33ff33" if ty == 'DINT' else "ffffff"
     text = "{} [color={}]{}[/color]  [b]{}[/b]".format(course_dict['Name'][0][1:], type_color, ty, getsection(course_dict))
@@ -99,7 +99,7 @@ def class_closeup( self, renderer, pos, size, block ):
         self.bulletin.exclude_all_but( button.section, button.state )
 
     keep = ToggleButton(text='Keep Section in Schedule', pos=(ox+.1*w, oy+ydim*.2), size=(.8*xdim, .1*ydim), 
-                        group='cal_popup1', on_press=remove_all_but_this)
+                        group='cal_popup1', on_release=remove_all_but_this)
     keep.section = course_dict
     if keep.section['kept_section']:
         keep.state = 'down'
@@ -110,7 +110,7 @@ def class_closeup( self, renderer, pos, size, block ):
         else:
             self.bulletin.include_section( button.section )
     remove = ToggleButton(text='Remove Section from Search', pos=(ox+.1*w, oy+ydim*.1), size=(.8*xdim, .1*ydim), 
-                          group='cal_popup1', on_press=remove_section)
+                          group='cal_popup1', on_release=remove_section)
     remove.section = course_dict
     # Has this been excluded earlier?
     if not remove.section['included_in_search']:
@@ -123,7 +123,7 @@ def class_closeup( self, renderer, pos, size, block ):
             self.user_event_layer.remove_widget(self.active_button)
             self.active_button = None
         remove_user_event_button = ToggleButton(text='Remove', pos=(ox+.1*w, oy+ydim*.1), size=(.8*xdim, .1*ydim), 
-                                                group='cal_popup1', on_press=remove_user_event)
+                                                group='cal_popup1', on_release=remove_user_event)
         remove_user_event_button.user_event = course_dict
         #renderer.add_widget( remove_user_event_button )
     else:

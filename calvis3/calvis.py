@@ -51,12 +51,13 @@ class Calender(FloatLayout):
         Clock.schedule_interval(self.hold_checker, 1.0 / 120.0)
     
     def create_layers( self ):
-        self.top_layer = FloatLayout()
-        self.middle_layer = FloatLayout()
-        self.bottom_layer = FloatLayout()
-        self.schedule_layer = FloatLayout()
+        self.meta_layer       = FloatLayout()
+        self.top_layer        = FloatLayout()
+        self.middle_layer     = FloatLayout()
+        self.bottom_layer     = FloatLayout()
+        self.schedule_layer   = FloatLayout()
         self.user_event_layer = FloatLayout()
-        self.my_layers = [ self.top_layer, self.user_event_layer, self.schedule_layer, 
+        self.my_layers = [ self.meta_layer, self.top_layer, self.user_event_layer, self.schedule_layer, 
                            self.middle_layer, self.bottom_layer ]
         for w in self.my_layers[::-1]: 
             self.add_widget( w )#The widget last added is last rendered.
@@ -64,7 +65,13 @@ class Calender(FloatLayout):
     def build_middle_layer(self):
         self.clear_layer(self.middle_layer)
         self.in_exclusion_mode = False
-        bottom_controls = GridLayout(cols=2, pos=(self.x,self.y), size=(w, .15*h) )
+        opacity = lambda (r,g,b,a): (r,g,b,0.70*a)
+        slider_color = opacity(some_colors['steelblue1'])
+        slider_button = Button( background_color=slider_color, markup=True,
+                                text='[color=000000][b]^[/b][/color]', on_press=self.slide_bottom_controls, 
+                                pos=(self.x+w/2.0-20, self.y+.15*h), size=(40,20) )
+        self.meta_layer.add_widget( slider_button )
+        bottom_controls = GridLayout( cols=2,  pos=(self.x,self.y), size=(w,.15*h), spacing=(.01*w, .01*h), padding=(.01*w,.01*h), )
         self.exclude_button = ToggleButton( background_color=some_colors['darkturquoise'], text="Exclude Times", 
                                             on_press=self.exclusion_mode )
         self.exclude_button.layout = None
@@ -81,18 +88,32 @@ class Calender(FloatLayout):
         bottom_controls.add_widget( self.prev_button )
         bottom_controls.add_widget( self.next_button )
         self.next_button.on, self.prev_button.on = False, False
-        self.middle_layer.add_widget( bottom_controls )
+        
+        self.bottom_controls = bottom_controls
+        self.meta_layer.add_widget( self.bottom_controls )
+        self.slide_bottom_controls( slider_button )
         days = ['M','T','W','Th','F']
         for i in range(len( days )):
             day, x = days[i], i*XGAP
             button = ToggleButton( pos=(self.x + x, self.y + h-.05*h), size=(XGAP, .05*h), background_color=some_colors['indianred4'],
-                                   text=day,
-                                   on_press=lambda button : self.exclude_day(button))
+                             text=day,
+                             on_press=lambda button : self.exclude_day(button))
             button.my_name = day
             button.layout = FloatLayout()
             self.middle_layer.add_widget( button )
 
     # Callbacks
+    def slide_bottom_controls( self, button ):
+        if self.bottom_controls.y == 0:
+            y_slide = -1
+        else:
+            y_slide = 1
+        new_y = self.bottom_controls.y + y_slide * self.bottom_controls.height
+        anim1 = Animation(y=new_y, duration=.10)
+        anim1.start( self.bottom_controls)
+        anim2 = Animation(y=new_y + self.bottom_controls.height, duration=.10)
+        anim2.start( button )
+
     def exclude_day(self, button):
         if not self.active_button:
             days = ['M','T','W','Th','F']
@@ -101,8 +122,8 @@ class Calender(FloatLayout):
                 button.layout = FloatLayout()
                 with button.layout.canvas:
                     Color(1,1,1,.3)
-                    Rectangle(pos=(self.x + XGAP*days.index( button.my_name ),self.y + .15*h), 
-                              size=(XGAP, .85*h))
+                    Rectangle(pos=(self.x + XGAP*days.index( button.my_name ),self.y), 
+                              size=(XGAP, h))
                 self.top_layer.add_widget(button.layout)
             else:
                 self.top_layer.remove_widget(button.layout)

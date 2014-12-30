@@ -16,7 +16,7 @@ class SectionDetail( FloatLayout ):
         def press_button(b):
             button.state = b.state
             callback( button )
-        tb = ToggleButton( text='Section Excluded', on_press=press_button )
+        tb = ToggleButton( text='Section Excluded', on_release=press_button )
         tb.state = button.state
 
         glay.add_widget( tb )

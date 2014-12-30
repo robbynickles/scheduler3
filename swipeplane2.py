@@ -13,12 +13,13 @@ class Page():
 class SwipePlane( ScatterPlane ):
     """ Upgrades: 
     1. Deactivate un-viewed widgets.
+    2. Don't press buttons when swiped.
     """
     PAGE_W, PAGE_H = Window.width, Window.height
     def __init__(self, *args, **kwargs):
         """ScatterPlane that responds to swipe gestures."""
         super(type(self), self).__init__(*args, **kwargs)
-        self.do_rotation, self.do_scaling, self.do_translation_y = False, True, False
+        self.do_rotation, self.do_scaling, self.do_translation_y = False, False, False
         self.pages = []
         self.animating = False#Only allow one animation loop at a time.
         self.xvel = 0
@@ -31,6 +32,15 @@ class SwipePlane( ScatterPlane ):
 
     def current_page(self): return int(-self.x / self.PAGE_W)
 
+    def on_touch_up(   self, touch ): 
+        #Snap back from width boundaries
+        if -self.x < self.pages[0].x:
+            self.x_shift( -self.pages[0].x )
+        elif -self.x > self.pages[-1].x:
+            self.x_shift( -self.pages[-1].x )
+        super(type(self), self).on_touch_up( touch )
+
+
     def on_motion( self, etype, e ):
         if etype == 'begin':
             self.stop_inertia()
@@ -38,6 +48,7 @@ class SwipePlane( ScatterPlane ):
             self.start_page = self.pages[ self.start_page_i ]
         elif etype == 'end':
             if not self.animating and not self.off_edge(e.dx) and abs(e.dx) > 10: 
+                e.canceled = True
                 self.start_inertia( e.dx )
 
     def off_edge(self, dx):
@@ -46,6 +57,8 @@ class SwipePlane( ScatterPlane ):
             (dx < 0 and self.start_page_i == len(self.pages)-1)
 
     def start_inertia(self, xvel):
+        global SWIPING
+        SWIPING = True
         self.animating, self.xvel = True, xvel
         Clock.schedule_interval(self.animate, 1/120.0)
 
