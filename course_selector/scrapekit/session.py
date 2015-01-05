@@ -63,7 +63,33 @@ def set_school_value( text ):
     term_labels = get_labels( term_control )
     subject_labels = get_labels( subject_control )
 
+def course_package( tcourses ):
+    courses = []
+    for key, val in tcourses.items():
+        courses += [ {'name' : key, 'sections' : val} ]
+    return courses
+
+def dept_package( department_name, sections ):
+    dept = {}
+    dept['name'] = department_name
+    tcourses = {}
+    for section in sections:
+        if tcourses.has_key( section['Name'] ):
+            tcourses[ section['Name'] ] += [ section ]
+        else:
+            tcourses[ section['Name'] ] =  [ section ]
+    dept['courses'] = course_package( tcourses )
+    return dept
+
 def submit_HTMLform():
+    semester_courses = []
+    for subject_label in get_subject_labels():
+        set_subject_value( subject_label )
+        department_sections = _submit_HTMLform()
+        semester_courses += [ package(subject_label, department_sections) ]
+    return semester_courses
+
+def _submit_HTMLform():
     raw_classes = []
     try:
         request = form.click()
@@ -72,7 +98,7 @@ def submit_HTMLform():
         raw_classes = soup.find_all('tr')
     except mechanize.HTTPError, response2:
         return []
-    
+
     if len(raw_classes) >= 6:
         key = [ str(item) for item in raw_classes[5].strings ][1:-1]
         # This only works because there is no other 'U' and 's.'

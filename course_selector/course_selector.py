@@ -21,6 +21,7 @@ class LoadingScreen( FloatLayout ):
         self.ellipsis += ". "
         self.label.text = self.text_of_label + self.ellipsis
 
+
 def course_selector_layout( parent, callout, size=(0,0), pos=(0,0), offline_mode=False ):
     if offline_mode:
         from offline.session import \
@@ -51,28 +52,44 @@ def course_selector_layout( parent, callout, size=(0,0), pos=(0,0), offline_mode
             department_spinner.values = [ 'Please select a term first.' ]
             course_spinner.values     = [ 'Please select a term first.' ]
 
+    semester_courses = []
+    load_screen = LoadingScreen()
     def term_selected(spinner, text): 
         if 'Please' not in text:
             set_term_value(text)
-            department_spinner.values = get_subject_labels()
-            course_spinner.values     = [ 'Please select a department first.' ]
-        
-    load_screen = LoadingScreen()
-    def dept_selected(spinner, text): 
-        if 'Please' not in text:
-            set_subject_value(text)
             load_screen.populate( text )
             parent.add_widget( load_screen )
             Clock.schedule_interval( load_screen.update_label, 1/3.0 )
             threading.Thread( target=submit_form ).start()
 
-    def wrapper(): 
-        wrapper.dictionaries = []
+    def submit_form(): 
+        global semester_courses
+        semester_courses = submit_HTMLform() #The dictionary of all departments, with their courses, with their sections.
+        department_spinner.values = [ dept['name'] for dept in semester_courses ]
+        Clock.unschedule( load_screen.update_label )
+        load_screen.clear_widgets()
+        parent.remove_widget( load_screen )
+        
+    def dept_selected(spinner, text): 
+        name = lambda d: "{} : {}".format(d['Name'][0],d['Title'][0])
+        sections = []
+        for dept in semester_courses:
+            if dept['name'] == text:
+                for course in dept['courses']:
+                    sections += course['sections']
+        course_spinner.values = sorted(set(map(name, sections)), key=get_number)
 
     def course_selected( spinner, text ):
         if text != 'This department offers no courses for the selected term.' and \
            'Please' not in text:
-            callout( wrapper.dictionaries, text )
+            # Send out a list of all sections from the currently selected departement 
+            # and the name of the course selected.
+            for dept in semester_courses:
+                if dept['name'] == department_spinner.text:
+                    for course in dept['courses']:
+                        if course['name'] in text:
+                            course_sections = course['sections']
+            callout( course_sections,  text ) 
 
     def get_number(name):
         s = name.split(':')[0].split('-')[1].strip()
@@ -88,14 +105,6 @@ def course_selector_layout( parent, callout, size=(0,0), pos=(0,0), offline_mode
                 except:
                     print "{} caused an error.".format( s )
                     return 0
-
-    def submit_form(): 
-        wrapper.dictionaries = submit_HTMLform()
-        name = lambda d: "{} : {}".format(d['Name'][0],d['Title'][0])
-        course_spinner.values = sorted(set(map(name, wrapper.dictionaries)), key=get_number)
-        Clock.unschedule( load_screen.update_label )
-        load_screen.clear_widgets()
-        parent.remove_widget( load_screen )
 
     school_spinner     = make_spinner_with_values( get_school_labels(), 'School', 'school', 
                                                    some_colors['darkturquoise'], school_selected )
