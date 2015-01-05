@@ -15,9 +15,17 @@ class SectionDetail( FloatLayout ):
             chunks += ['   '.join([ty, ''.join(days), time, locate])]
         def press_button(b):
             button.state = b.state
+            if b.text == 'Section Excluded':
+                b.text = 'Section Included'
+            else:
+                b.text = 'Section Excluded'
             callback( button )
-        tb = ToggleButton( text='Section Excluded', on_press=press_button )
+        tb = ToggleButton( on_press=press_button )
         tb.state = button.state
+        if tb.state == 'down':
+            tb.text = 'Section Excluded'
+        else:
+            tb.text = 'Section Included'
 
         glay.add_widget( tb )
         glay.add_widget( Label( text=info, font=18,markup=True ) )

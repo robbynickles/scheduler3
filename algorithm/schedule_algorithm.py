@@ -1,3 +1,5 @@
+"""Figure how to cython this. Here C would be better than python."""
+
 import random
 from itertools import combinations
 from helpers import * 

@@ -10,9 +10,10 @@ def on_touch_down(self, mouse_motion_event):
 
 def on_touch_move(self, mouse_motion_event):
     super(type(self), self).on_touch_move( mouse_motion_event )
-    if self.in_exclusion_mode:
-        x , y = mouse_motion_event.x, mouse_motion_event.y
-        ox, oy = mouse_motion_event.ox, mouse_motion_event.oy 
+    x , y = mouse_motion_event.x, mouse_motion_event.y
+    ox, oy = mouse_motion_event.ox, mouse_motion_event.oy 
+    if self.in_exclusion_mode and \
+       self.x < x < self.x+w and self.x < ox < self.x+w:
         self.top_layer.remove_widget( self.layout )
         self.layout = FloatLayout()
         left = (int(x) / int(XGAP)) * XGAP
@@ -21,16 +22,16 @@ def on_touch_move(self, mouse_motion_event):
             Color(*some_colors['steelblue1'])
             Rectangle( pos=pos, size=size )
             Color(*some_colors['steelblue1'])
-            Line( points=[0,y,w,y] )
-            Line( points=[0,oy,w,oy] )
-        day, start = inverse_cal_map(-self.x + x,-self.y + min(y,oy))
-        day, end = inverse_cal_map(-self.x + x, -self.y + max(y,oy))
+            Line( points=[self.x,y,self.x+w,y] )
+            Line( points=[self.x,oy,self.x+w,oy] )
+        day, start = inverse_cal_map(-self.x + x, -self.y + max(y,oy))
+        day, end   = inverse_cal_map(-self.x + x, -self.y + min(y,oy))
         OFFSET = XGAP if day == 'M' else -XGAP 
         start, end = map( adjust_time, [start, end] )
         self.layout.add_widget(Label(text=start, color=some_colors['springgreen3'],
-                                     font_size=40, pos=label_offset((pos[0]+XGAP*.3+OFFSET,min(y,oy)))))
-        self.layout.add_widget(Label(text=end,color=some_colors['springgreen3'],
                                      font_size=40, pos=label_offset((pos[0]+XGAP*.3+OFFSET,max(y,oy)))))
+        self.layout.add_widget(Label(text=end,color=some_colors['springgreen3'],
+                                     font_size=40, pos=label_offset((pos[0]+XGAP*.3+OFFSET,min(y,oy)))))
         self.top_layer.add_widget( self.layout )
 
 def on_touch_up(self, mouse_motion_event):
@@ -42,9 +43,10 @@ def on_touch_up(self, mouse_motion_event):
     x , y = mouse_motion_event.x, mouse_motion_event.y
     ox, oy = mouse_motion_event.ox, mouse_motion_event.oy
     if self.in_exclusion_mode and \
-           .2*h < y < h - .05*h and .2*h < oy < h - .05*h and abs(y-oy) > .01*h:
-        day, start = inverse_cal_map(-self.x + x, -self.y + min(y, oy))
-        day, end = inverse_cal_map(-self.x + x, -self.y + max(y, oy))
+           0 < y < h and 0 < oy < h and abs(y-oy) > .01*h and \
+           self.x < x < self.x+w and self.x < ox < self.x+w:
+        day, start = inverse_cal_map(-self.x + x, -self.y + max(y, oy))
+        day, end = inverse_cal_map(-self.x + x, -self.y + min(y, oy))
         course_dict = create_course_dict(start, end, day)
         self.add_user_event( course_dict )
         
@@ -60,7 +62,7 @@ def create_course_dict(start, end, day, name='MPersonal'):
          'ID' : int(random.random()*1000),
          'included_in_search' : True,
          'row_group' : None,
-         'my_color' : some_colors['steelblue1'],
+         'my_color' : some_colors['orangered1'],
          'old_included_in_search' : True,
          'kept_section' : False }
 

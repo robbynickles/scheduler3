@@ -105,6 +105,7 @@ def class_closeup( self, button, pos, size, sections ):
         glay.clear_widgets()
         try:
             renderer.remove_widget( glay )
+            renderer.remove_widget( renderer.s_detail )
         except:
             pass
         sorted_sections = sorted( sections, key=sort_by )
@@ -115,12 +116,12 @@ def class_closeup( self, button, pos, size, sections ):
                 start, end = i*ncols, (i+1)*ncols
             for j in range(start, end):
                 text = sorted_sections[j][ key ][0]
-                if key == 'Instructor': text = '[size=14]{}[/size]'.format( text.split(',')[0] )
-                s_button = ToggleButton(text=str(text), markup=True, background_color=sections[j]['my_color'], on_press=section_detail)
+                if key == 'Instructor': text = '[size=16]{}[/size]'.format( text.split(',')[0] )
+                s_button = ToggleButton(text=str(text), markup=True, 
+                                        background_color=sections[j]['my_color'], on_press=section_detail)
                 s_button.section = sorted_sections[j]
                 if not s_button.section['included_in_search']:
                     s_button.state = 'down'
-                    # Remove specific sections from the list of selected courses.
                 glay.add_widget(s_button)
         renderer.add_widget( glay )
     populate_glay( lambda s: s['Section'][0], 'Section' )

@@ -19,21 +19,19 @@ def draw_border(self, (ox,oy)):
     for hr in hrs:
         time = hr + ' 00 AM'
         x, y = cal_map('M', time)
-        self.add_widget(Label(text=time, pos=label_offset((ox + x-65,oy + y))))
-        y += YGAP
+        self.add_widget(Label(text=time, pos=label_offset((ox + x-65,oy + y - .8*YGAP))))
         with self.canvas:
             Color(r,g,b,.3)
             Line(points=(ox + x,oy + y,ox + x+w,oy + y))
     for hr in hrs:
         time = hr + ' 00 PM'
         x, y = cal_map('M', time)
-        self.add_widget(Label(text=time, pos=label_offset((ox + x-65,oy + y))))
-        y += YGAP
+        self.add_widget(Label(text=time, pos=label_offset((ox + x-65,oy + y - .8*YGAP))))
         with self.canvas:
             Color(r,g,b,.3)
             Line(points=(ox + x,oy + y,ox + x+w,oy + y))
     for day in days[1:]:
-        x, y = cal_map(day, '12 00 AM')
+        x, y = cal_map(day, '11 59 PM')
         self.add_widget(Label( pos=label_offset((ox + x,oy + y-30)), text="" ))
         with self.canvas:
             Color(r,g,b,.3)

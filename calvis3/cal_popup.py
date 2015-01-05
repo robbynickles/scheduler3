@@ -9,22 +9,22 @@ def add_block(self, block, layer ):
         p1, p2 = cal_map(day, '4 00 AM'), cal_map(day, '5 00 AM')
     p1 = self.x + p1[0], self.y + p1[1]
     p2 = self.x + p2[0], self.y + p2[1]
-    size = XGAP,p2[1]-p1[1]
-    button = Button( pos=p1, size=size, background_color=course_dict['my_color'], 
+    size = XGAP,p1[1]-p2[1]
+    button = Button( pos=p2, size=size, background_color=course_dict['my_color'], 
                      on_release=lambda button : popup_window(self, button, block) )
-    draw_box(button, p1, size, (1, .5, 0, 1))
+    draw_box(button, p2, size, (1, .5, 0, 1))
     type_color = "33ff33" if ty == 'DINT' else "ffffff"
     text = "{} [color={}]{}[/color]  [b]{}[/b]".format(course_dict['Name'][0][1:], type_color, ty, getsection(course_dict))
     if ty == 'PERS':
-        text = "Custom"
-    button.add_widget(Label(text=text, font_size=13, markup=True, pos=label_offset((p1[0]+XGAP*.3,p1[1]+3))))
+        text = "Excluded Time"
+    button.add_widget(Label(text=text, font_size=13, markup=True, pos=label_offset((p2[0]+XGAP*.3,p2[1]+3))))
     button.switch_state=False 
     button.my_popup = None
     layer.add_widget(button)
 
 def popup_window(self, button, block):
     if self.active_button == None or self.active_button == button:
-        self.parent.apply_transform( self.parent.transform.inverse().translate(-1.2*w, 0, 0) )
+        #self.parent.apply_transform( self.parent.transform.inverse().translate(-1.2*w, 0, 0) )
         (x,y), (xdim,ydim) = button.pos, button.size
         button.switch_state = not button.switch_state
         if button.switch_state:
@@ -44,8 +44,8 @@ def popup_window(self, button, block):
                     Rectangle( pos=pos, size=size )
                     draw_box(layout, pos, size, border_color, alpha=1, width=width)
             button.my_popup = layout
-
-            detail = SectionDetail( block, pos, size )
+            
+            detail = SectionDetail( self, block, pos, size )
             layout.detail = detail
             layout.add_widget( detail )
 

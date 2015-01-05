@@ -10,7 +10,7 @@ def cal_map(day, time):
         hr, m, meridiem = time.split(' ')
         m = float(m)
         return XGAP*days.index(day), \
-            YGAP*hrs.index(hr) + m/60.0*YGAP + 12*YGAP*int(meridiem == 'PM')
+            h - (YGAP*hrs.index(hr) + m/60.0*YGAP + 12*YGAP*int(meridiem == 'PM'))
     except:
         pass
 
@@ -18,9 +18,10 @@ def inverse_cal_map(x, y):
     """(x,y) --> (day, time),
     where day is a work-week day and time is like 6 31 AM."""
     day = days[int(x) / int(XGAP)]
-    hr = (hrs+hrs)[int(y) / int(YGAP)] 
-    m = (int(y)%int(YGAP) / YGAP) * 60
-    meridiem = 'PM' if int(y) / int(YGAP) >= len(hrs) else 'AM'
+    rev_hrs = hrs[::-1]
+    hr = (rev_hrs+rev_hrs)[(int(y)) / int(YGAP)]
+    m = ((h - int(y)) % int(YGAP) / YGAP) * 60
+    meridiem = 'AM' if int(y) / int(YGAP) >= len(hrs) else 'PM'
     return day, "{} {} {}".format(hr, '0'+str(int(m)) if 0<=m<10 else int(m), meridiem)
 
 def label_offset((x, y)): 

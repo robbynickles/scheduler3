@@ -18,15 +18,16 @@ some_colors = {
 'burlywood': (222, 184, 135, 255),
 'darkseagreen1': (193, 255, 193, 255)
 }
-
-
-
+somet_colors = {}
 opacity = lambda (r,g,b,a): (r, g, b, 1.0 * a)
 percent = lambda x: x/255.0
 for key, value in some_colors.items():
-    some_colors[key] = map(percent, opacity(value))
+    some_colors[key] = map(percent, value)
+    somet_colors[key] = map(percent, opacity(value))
 
-colors = ['indianred4', 'aquamarine2', 'yellow2', 'darkturquoise', 'mediumpurple3', 'springgreen3', 'peachpuff3',
+
+
+colors = ['darkturquoise', 'aquamarine2', 'yellow2', 'indianred4', 'mediumpurple3', 'springgreen3', 'peachpuff3',
           'darkseagreen1', 'orchid4', 'orangered1' ]
 _color_wheel = [ some_colors[ c ] for c in colors ]
 

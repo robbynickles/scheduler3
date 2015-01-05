@@ -22,13 +22,14 @@ root = SwipePlane()
 for page in pages:
     root.add_page( page )
 
-import cProfile
+#import cProfile
 from kivy.app import App
 class MyApp(App):
+    """
     def on_start(self):
         self.profile = cProfile.Profile() 
         self.profile.enable()
-
+    """
     def on_pause(self):
         # Here you can save data if needed
         return True
@@ -36,11 +37,11 @@ class MyApp(App):
     def on_resume(self):
         # Here you can check if any data needs replacing (usually nothing)
         pass
-
+    """
     def on_stop(self):
         self.profile.disable() 
         self.profile.dump_stats('myapp.profile')
-
+    """
     def build(self):
         return root
 

@@ -2,6 +2,7 @@ import threading, time
 from kivy.uix.progressbar import ProgressBar
 
 from global_environment import *
+from utility.color_wheel import somet_colors
 from cal_popup import add_block
 from algorithm.helpers import overlap
 import exclusion
@@ -36,6 +37,7 @@ class Calender(FloatLayout):
         self.stored_schedules = []
         self.current_sched = None
         self.gen_sched = False
+        self.schedule_index = -1
         self.schedule_generation_thread = threading.Thread( target=self.generation_object )
 
         self.on_touch_down = lambda e: exclusion.on_touch_down(self, e)
@@ -57,7 +59,7 @@ class Calender(FloatLayout):
         self.bottom_layer     = FloatLayout()
         self.schedule_layer   = FloatLayout()
         self.user_event_layer = FloatLayout()
-        self.my_layers = [ self.meta_layer, self.top_layer, self.user_event_layer, self.schedule_layer, 
+        self.my_layers = [ self.top_layer, self.meta_layer,   self.user_event_layer,  self.schedule_layer, 
                            self.middle_layer, self.bottom_layer ]
         for w in self.my_layers[::-1]: 
             self.add_widget( w )#The widget last added is last rendered.
@@ -65,24 +67,25 @@ class Calender(FloatLayout):
     def build_middle_layer(self):
         self.clear_layer(self.middle_layer)
         self.in_exclusion_mode = False
-        opacity = lambda (r,g,b,a): (r,g,b,0.70*a)
+        opacity = lambda (r,g,b,a): (r,g,b,0.50*a)
         slider_color = opacity(some_colors['steelblue1'])
+        slider_w = 60
         slider_button = Button( background_color=slider_color, markup=True,
                                 text='[color=000000][b]^[/b][/color]', on_press=self.slide_bottom_controls, 
-                                pos=(self.x+w/2.0-20, self.y+.15*h), size=(40,20) )
+                                pos=(self.x+w/2.0-slider_w/2.0, self.y+.15*h), size=(slider_w,40) )
         self.meta_layer.add_widget( slider_button )
         bottom_controls = GridLayout( cols=2,  pos=(self.x,self.y), size=(w,.15*h), spacing=(.01*w, .01*h), padding=(.01*w,.01*h), )
-        self.exclude_button = ToggleButton( background_color=some_colors['darkturquoise'], text="Exclude Times", 
+        self.exclude_button = ToggleButton( background_color=somet_colors['darkturquoise'], text="Exclude Times", 
                                             on_press=self.exclusion_mode )
         self.exclude_button.layout = None
         bottom_controls.add_widget(self.exclude_button)
-        self.gen_button = Button( background_color=some_colors['steelblue1'], text="Generate Schedules", 
+        self.gen_button = Button( background_color=somet_colors['steelblue1'], text="Generate Schedules", 
                                   on_press=lambda button: self.generate_schedules() )
         bottom_controls.add_widget( self.gen_button )
-        self.next_button = Button( background_color=some_colors['indianred4'], text="Next Schedule", 
+        self.next_button = Button( background_color=somet_colors['indianred4'], text="Next Schedule", 
                                    on_press=lambda button : self.press_button(button),
                                    on_release=lambda button : self.release_button(button) )
-        self.prev_button = Button( background_color=some_colors['deepskyblue4'], text="Previous Schedule", 
+        self.prev_button = Button( background_color=somet_colors['deepskyblue4'], text="Previous Schedule", 
                                    on_press=lambda button: self.press_button(button),
                                    on_release=lambda button : self.release_button(button) )
         bottom_controls.add_widget( self.prev_button )
@@ -122,11 +125,11 @@ class Calender(FloatLayout):
                 button.layout = FloatLayout()
                 with button.layout.canvas:
                     Color(1,1,1,.3)
-                    Rectangle(pos=(self.x + XGAP*days.index( button.my_name ),self.y), 
+                    Rectangle(pos=(self.x + XGAP*days.index( button.my_name ), self.y), 
                               size=(XGAP, h))
-                self.top_layer.add_widget(button.layout)
+                self.middle_layer.add_widget(button.layout)
             else:
-                self.top_layer.remove_widget(button.layout)
+                self.middle_layer.remove_widget(button.layout)
         else:
             button.state = 'normal'
 
@@ -134,12 +137,15 @@ class Calender(FloatLayout):
         if not self.active_button:
             self.in_exclusion_mode = not self.in_exclusion_mode
             if self.in_exclusion_mode:
-                self.parent.do_scale, self.parent.do_translation = False, False
+                self.parent.do_translation_x = False
             else:
-                self.parent.do_scale, self.parent.do_translation = True, True
+                self.parent.do_translation_x = True
         else:
-            button.state = 'normal'
-        
+            if button.state == 'down':
+                button.state = 'normal'
+            else:
+                button.state = 'down'
+
     def generate_schedules( self ):
         if not self.active_button:
             try:# How to terminate running thread?
@@ -150,12 +156,15 @@ class Calender(FloatLayout):
 
     first = False
     WAIT, ACC = 0, 0
+
     def press_button( self, b ): 
         b.on = True
         self.first = True
         self.WAIT, self.ACC = .1, .005
+
     def release_button( self, b ):
         b.on = False    
+
     def hold_checker( self, dt ):
         self.WAIT -= self.ACC
         if self.WAIT > 0: time.sleep( self.WAIT )
@@ -174,7 +183,8 @@ class Calender(FloatLayout):
     def iterate_schedules( self, step ):
         if self.active_button == None:
             self.schedule_index += step
-            self.schedule_index = 0 if self.schedule_index<0 else self.schedule_index
+            if self.schedule_index<0:
+                self.schedule_index = 0 
             if self.schedule_index == 0 and len(self.stored_schedules) == 0: return
             elif self.schedule_index >= len(self.stored_schedules):
                 try:
@@ -194,10 +204,11 @@ class Calender(FloatLayout):
         layer.clear_widgets()
 
     def add_user_event(self, user_event):
-        self.bulletin.add_user_event( user_event )
-        self.clear_layer(self.user_event_layer)
-        for ue in self.bulletin.get_user_events():
-            self.add_course( ue.event_dict, self.user_event_layer )
+        if not self.active_button:
+            self.bulletin.add_user_event( user_event )
+            self.clear_layer(self.user_event_layer)
+            for ue in self.bulletin.get_user_events():
+                self.add_course( ue.event_dict, self.user_event_layer )
 
     def add_schedule( self, sched ):
         self.clear_layer( self.schedule_layer )
