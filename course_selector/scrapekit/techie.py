@@ -2,7 +2,6 @@ def clean(raw_listing):
     listing = []
     for td_tag in raw_listing.find_all('td'):
         tag_strings = [str(s).strip() for s in td_tag.strings]
-        print td_tag
         if td_tag.attrs.has_key('style') and \
                 '500px;' in td_tag.attrs['style']: #This is the more-info tag
             listing += [[" ".join(tag_strings)]]

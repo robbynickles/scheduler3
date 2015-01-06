@@ -7,12 +7,12 @@ class LoadingScreen( FloatLayout ):
         flay = FloatLayout()
         with flay.canvas:
             Color(0,0,0,.7)
-            Rectangle( pos=(-1.2*w,0), size=(w,h) )
+            Rectangle( pos=(0,0), size=(w,h) )
         self.add_widget( flay )
         text = text.split(':')[1]
         self.text_of_label = "Retrieving {} courses".format( text )
         self.ellipsis = ""
-        self.label = Label( center=(-1.2*w + w/2,h/2 + 30) )
+        self.label = Label( center=(0 + w/2,h/2 + 30) )
         self.add_widget( self.label )
 
     def update_label( self, dt ):
@@ -75,16 +75,17 @@ def course_selector_layout( parent, callout, size=(0,0), pos=(0,0), offline_mode
             callout( wrapper.dictionaries, text )
 
     def get_number(name):
+        """ Map name to a '3-digit' number."""
         s = name.split(':')[0].split('-')[1].strip()
         if s.isdigit():
-            return int(s)
+            return 36*36*int(s)
         else: # something like 1C goes to 1+2=3
             alpha = 'abcdefghijklmnopqrstuvwxyz'
             try:
-                return int(s[:-1]) + alpha.index(s[-1].lower())
+                return 36*36*int(s[:-1]) + 36*alpha.index(s[-1].lower())
             except ValueError:
                 try:
-                    return int(s[:-2]) + alpha.index(s[-2].lower()) + alpha.index(s[-1].lower())
+                    return 36*36*int(s[:-2]) + 36*alpha.index(s[-2].lower()) + alpha.index(s[-1].lower())
                 except:
                     print "{} caused an error.".format( s )
                     return 0
@@ -92,7 +93,10 @@ def course_selector_layout( parent, callout, size=(0,0), pos=(0,0), offline_mode
     def submit_form(): 
         wrapper.dictionaries = submit_HTMLform()
         name = lambda d: "{} : {}".format(d['Name'][0],d['Title'][0])
-        course_spinner.values = sorted(set(map(name, wrapper.dictionaries)), key=get_number)
+        try:
+            course_spinner.values = sorted(set(map(name, wrapper.dictionaries)), key=get_number)
+        except KeyError:
+            course_spinner.values = [ 'This department offers no courses for the selected term.' ]
         Clock.unschedule( load_screen.update_label )
         load_screen.clear_widgets()
         parent.remove_widget( load_screen )

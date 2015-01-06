@@ -1,6 +1,6 @@
 import sys
 #OFFLINE_MODE = len(sys.argv) > 1 and sys.argv[1] == 'offline'  
-OFFLINE_MODE = True
+OFFLINE_MODE = False
 from algorithm.schedule_algorithm import courses
 from algorithm.schedule_algorithm import generate_schedules
 from course_selector.selector import Selector
